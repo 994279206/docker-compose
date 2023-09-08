@@ -1,0 +1,125 @@
+version: '3'
+services:
+  elasticsearch_n0:
+    image: elasticsearch:7.2.0
+    container_name: elasticsearch_n0
+    privileged: true
+    environment:
+      - cluster.name=elasticsearch-cluster
+      - node.name=node0
+      - node.master=true
+      - node.data=true
+      - bootstrap.memory_lock=true
+　　　 - search.max_buckets=100000000
+      - http.cors.enabled=true
+      - http.cors.allow-origin=*
+      - cluster.initial_master_nodes=node0
+#      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
+#      - "discovery.zen.ping.unicast.hosts=elasticsearch_n0,elasticsearch_n1,elasticsearch_n2"
+　　　 # 如果是拆分版，这里必须填写宿主机ip
+      #- discovery.zen.ping.unicast.hosts=192.168.133.68,192.168.133.75,192.168.133.77
+#      - "discovery.zen.minimum_master_nodes=2"
+#      - discovery.zen.ping_timeout=120s
+#      - client.transport.ping_timeout=60s
+      # 如果是拆分版，这条配置必须加上，指定当前节点访问的ip
+      #- network.publish_host=192.168.133.68
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - /data/base/es/data/node0:/usr/share/elasticsearch/data
+      - ./logs/node0:/usr/share/elasticsearch/logs
+    ports:
+      - 9200:9200
+      - 9300:9300
+    networks:
+      - esnet
+  elasticsearch_n1:
+    image: elasticsearch:7.2.0
+    container_name: elasticsearch_n1
+    privileged: true
+    environment:
+      - cluster.name=elasticsearch-cluster
+      - node.name=node1
+      - node.master=true
+      - node.data=true
+      - bootstrap.memory_lock=true
+      - search.max_buckets=100000000
+      - http.cors.enabled=true
+      - http.cors.allow-origin=*
+      - cluster.initial_master_nodes=node0
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
+      - "discovery.zen.ping.unicast.hosts=elasticsearch_n0,elasticsearch_n1,elasticsearch_n2"
+      # 如果是拆分版，这里必须填写宿主机ip
+      #- discovery.zen.ping.unicast.hosts=192.168.133.68,192.168.133.75,192.168.133.77
+      - "discovery.zen.minimum_master_nodes=2"
+      - discovery.zen.ping_timeout=120s
+      - client.transport.ping_timeout=60s
+      # 如果是拆分版，这条配置必须加上，指定当前节点访问的ip
+      #- network.publish_host=192.168.133.75
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - /data/base/es/data/node1:/usr/share/elasticsearch/data
+      - ./logs/node1:/usr/share/elasticsearch/logs
+    ports:
+      - 9201:9200
+      - 9301:9300
+    networks:
+      - esnet
+  elasticsearch_n2:
+    image: elasticsearch:7.2.0
+    container_name: elasticsearch_n2
+    privileged: true
+    environment:
+      - cluster.name=elasticsearch-cluster
+      - node.name=node2
+      - node.master=true
+      - node.data=true
+      - bootstrap.memory_lock=true
+      - search.max_buckets=100000000
+      - http.cors.enabled=true
+      - http.cors.allow-origin=*
+      - cluster.initial_master_nodes=node0
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
+      - "discovery.zen.ping.unicast.hosts=elasticsearch_n0,elasticsearch_n1,elasticsearch_n2"
+      # 如果是拆分版，这里必须填写宿主机ip      #注：端口非9200的节点， ip后需加端口号， 因 es 默认识别端口是9200
+      #- discovery.zen.ping.unicast.hosts=192.168.133.68,192.168.133.75,192.168.133.77
+      - "discovery.zen.minimum_master_nodes=2"
+      - discovery.zen.ping_timeout=120s
+      - client.transport.ping_timeout=60s
+      # 如果是拆分版，这条配置必须加上，指定当前节点访问的ip
+      #- network.publish_host=192.168.133.77
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - /data/base/es/data/node2:/usr/share/elasticsearch/data
+      - ./logs/node2:/usr/share/elasticsearch/logs
+    ports:
+      - 9202:9200
+      - 9302:9300
+    networks:
+      - esnet
+  kibana:
+    image: kibana:7.2.0
+    container_name: kibana
+    ports:
+      - 5601:5601
+    volumes:
+      - /etc/localtime:/etc/localtime
+      -./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml:rw
+    depends_on:
+      - elasticsearch_n0
+    networks:
+      - esnet
+  networks:
+    esnet:
+      external: true

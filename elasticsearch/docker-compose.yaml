@@ -1,0 +1,54 @@
+version: '3.8'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.3-arm64
+    hostname: es1
+    container_name: es-single
+    #    deploy:
+    #      restart_policy:
+    #        delay: 5s
+    #        max_attempts: 3
+    #        condition: on-failure
+    volumes:
+      - ./data:/usr/share/elasticsearch/data
+      - ./plugins:/usr/share/elasticsearch/plugins
+      - ./conf/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    environment:
+      - discovery.type=single-node
+      # - cluster.name=es
+      # - node.name=node1
+    ports:
+      - 9200:9200
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.13.3-arm64
+    container_name: kibana
+    ports:
+      - 5601:5601
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - ./conf/kibana.yml:/usr/share/kibana/config/kibana.yml:rw
+    depends_on:
+      - elasticsearch
+  cerebro:
+    image: lmenezes/cerebro:0.8.4
+    container_name: cerebro
+    ports:
+      - "9000:9000"
+    command:
+      - -Dhosts.0.host=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+  # logstash:
+  #   image: docker.elastic.co/logstash/logstash:7.13.3-arm64
+  #   container_name: logstash
+  #   volumes:
+  #     - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+  #     # - ./logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+  #     # - ./logstash/data/movies.csv:/usr/share/logstash/pipeline/movies.csv
+  #   ports:
+  #     - 5044:5044
+  #     - 9600:9600
+  #   environment:
+  #     LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+  #   depends_on:
+  #     - elasticsearch

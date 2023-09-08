@@ -1,0 +1,22 @@
+version: "3"
+services:
+  zookeeper:
+    image: zookeeper:latest
+    restart: always
+    ports:
+      - 12181:2181
+    environment:
+      - TZ=Asia/Shanghai
+  kafka:
+    image: wurstmeister/kafka:latest
+    restart: always
+    depends_on:
+      - zookeeper #依赖zookeeper，并在其后启动
+    ports:
+      - 9092:9092
+    environment:
+      - TZ=Asia/Shanghai
+      - KAFKA_BROKER_ID=0
+      - KAFKA_ZOOKEEPER_CONNECT=172.26.0.2:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://192.168.3.28:9092
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092

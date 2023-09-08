@@ -1,0 +1,19 @@
+version: '3.7'
+services:
+  mysql:
+    hostname: mysql
+    image: mysql
+    volumes:
+      - "./data/mysql/data:/var/lib/mysql"
+      - "./data/mysql/logs:/logs"
+    environment:
+      - MYSQL_DATABASE=datagrand
+      - MYSQL_ROOT_PASSWORD=123456
+      - LANG=C.UTF-8
+      - TZ=Asia/Shanghai
+    privileged: true
+    platform: "linux/amd64"
+    ports:
+      - "13306:3306"
+    command: ['--character-set-server=utf8', '--collation-server=utf8_general_ci']
+

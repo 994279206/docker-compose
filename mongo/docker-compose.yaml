@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  mongo:
+    image: mongo #根据需要选择自己的镜像
+    ports:
+      - 27017:27017 #对外暴露停供服务的端口，正式生产的时候理论不用暴露。
+    volumes:
+      - ./data/db:/data/db # 挂载数据目录
+      - ./logs:/var/log/mongodb  # 挂载日志目录
+      - ./config:/etc/mongo  # 挂载配置目录
+      - ./init/:/docker-entrypoint-initdb.d/
+    environment:
+      TZ: Asia/Shanghai
+      MONGO_INITDB_DATABASE: datagrand
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 123456

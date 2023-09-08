@@ -1,0 +1,52 @@
+version: '3.5'
+services:
+  rmqnamesrv:
+    image: apache/rocketmq:5.1.0
+    container_name: rmqnamesrv
+    ports:
+      - 9876:9876
+    volumes:
+      - ./logs/mqnamesrv:/home/rocketmq/logs
+    environment:
+      JAVA_OPT_EXT: "-Duser.home=/home/rocketmq -Xms512M -Xmx512M -Xmn128m"
+    command: [ "sh", "x" ]
+
+  rmqbroker:
+    image: apache/rocketmq:5.1.0
+    container_name: rmqbroker
+    ports:
+      - 8081:8081
+      - 10909:10909
+      - 10911:10911
+      - 10912:10912
+    volumes:
+      - ./logs/mqbroker:/home/rocketmq/logs
+      - ./store:/home/rocketmq/store
+      - ./conf/broker.conf:/home/rocketmq/rocketmq-5.1.0/conf/broker.conf
+    environment:
+      JAVA_OPT_EXT: "-Duser.home=/home/rocketmq -Xms512M -Xmx512M -Xmn128m"
+    command:
+      [
+        "sh",
+        "mqbroker",
+        "--enable-proxy",
+        "-n",
+        "192.168.2.17:9876",
+        "-c",
+        "/home/rocketmq/rocketmq-5.1.0/conf/broker.conf",
+        "autoCreateTopicEnable=true"
+      ]
+    depends_on:
+      - rmqnamesrv
+
+  # rmqconsole:
+  #   image: apacherocketmq/rocketmq-dashboard:latest
+  #   container_name: rmqconsole
+  #   ports:
+  #     - 8088:8080
+  #   environment:
+  #     JAVA_OPTS: "-Drocketmq.namesrv.addr=http://192.168.2.17:9876"
+  #   depends_on:
+  #     - rmqnamesrv
+    # platform: 
+    #   linux/amd64

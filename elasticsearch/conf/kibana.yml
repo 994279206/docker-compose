@@ -1,0 +1,10 @@
+#  # Default Kibana configuration for docker target
+server.name: kibana
+server.host: "0.0.0.0"
+#这里写你的es第一个node的地址
+elasticsearch.hosts: ["http://elasticsearch:9200"]
+xpack.monitoring.ui.container.elasticsearch.enabled: true
+i18n.locale: zh-CN
+xpack.security.encryptionKey: "123456789qwertyuiopasdfghjklzxcvbnm"
+xpack.reporting.encryptionKey: "123456789qwertyuiopasdfghjklzxcvbnm"
+xpack.encryptedSavedObjects.encryptionKey: "123456789qwertyuiopasdfghjklzxcvbnm"
